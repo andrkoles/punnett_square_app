@@ -3,7 +3,7 @@ from itertools import product
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
-from sort import sort_genotype, sort_genotype_vec
+from utils import sort_genotype, sort_genotype_vec
 
 class PunnettSquare:
     def __init__(self, parent_a='Aa', parent_b='Aa'):
