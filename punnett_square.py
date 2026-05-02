@@ -3,7 +3,8 @@ from itertools import product
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
-from utils import sort_genotype, sort_genotype_vec
+from utils import (sort_genotype, sort_genotype_vec, map_genotypes_vec,
+                   map_phenotypes_vec)
 
 class PunnettSquare:
     def __init__(self, parent_a='Aa', parent_b='Aa'):
@@ -53,31 +54,43 @@ class PunnettSquare:
         array = self.parent_a_gam().reshape(1, -1) + self.parent_b_gam().reshape(-1, 1)
         return sort_genotype_vec(array)
     
-    def gen_encoded(self):
+    def gen_encoded(self, type='genotypes'):
         """
-        Genotypes encoded. Assigns a number to each unique genotype which
-        facilitates plotting.
+        Encodes either the genotypes or the phenotypes in self.genotypes() array.
         """
-        keys = np.unique(self.genotypes())
-        arr = np.arange(len(keys))
-        mapping = dict([(k, v) for k, v in zip(keys, arr)])
-        encoded = np.array([mapping[item] for item in self.genotypes().flatten()])
-        return encoded.reshape(self._size(), self._size())
+        table = {
+            'genotypes': lambda: map_genotypes_vec(self.genotypes()),
+            'phenotypes': lambda: map_phenotypes_vec(self.genotypes())
+        }
+        return table[type]()
     
-    def freq_table(self):
+    def freq_table(self, type='genotypes'):
         """
         Frequency table for the genotypes in the cross.
         """
-        unique, counts = np.unique(self.genotypes(), return_counts=True)
+        key = {
+            'genotypes': 'Genotype',
+            'phenotypes': 'Phenotype'
+        }
+
+        _, indices, counts = np.unique(self.gen_encoded(type=type),
+                                       return_index=True, return_counts=True)
+        
         # Number of squares, or number of genotypes in the cross
         n_squares = self._size() ** 2
+
         d = {
-            "Genotype": unique, 
+            key[type]: self.genotypes().flatten()[indices], 
             "Frequency": counts,
             "Percent": (counts / n_squares) * 100
         }
-        freqs = pd.DataFrame(data=d, index=None)
-        return freqs.sort_values(by=['Frequency'], ascending=False)
+        freqs = (
+            pd.DataFrame(data=d, index=None)
+            .sort_values(by=[key[type]], ascending=True)
+            .sort_values(by='Frequency',ascending=False)
+        )
+
+        return freqs
     
     def plot_square(self):
         """
@@ -120,12 +133,12 @@ class PunnettSquare:
             case _:
                 return 0.2
 
-    def plotly_square(self, width=400, fontsize=15):
+    def plotly_square(self, width=400, fontsize=15, type='genotypes'):
         """
         Plots the Punnett Square using Plotly.
         """
         fig = go.Figure(data=go.Heatmap(
-            z=np.flipud(self.gen_encoded()),
+            z=np.flipud(self.gen_encoded(type)), # Genotypes or phenotypes
             text=np.flipud(self.genotypes()),
             texttemplate="%{text}",
             xgap=self._xy_gap(),

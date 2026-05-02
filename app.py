@@ -7,6 +7,11 @@ app_ui = ui.page_sidebar(
         'Parental Genotypes',
         ui.input_text('parent_a', 'First parent', value='Aa'),
         ui.input_text('parent_b', 'Second parent', value='Aa'),
+        ui.input_radio_buttons(
+            'type',
+            '',
+            {'genotypes': 'Genotypes', 'phenotypes': 'Phenotypes'}
+        ),
         ui.input_slider('plot_size', 'Plot size', value=400, min=100, max=1000, 
                         step=10),
         ui.input_slider('font_size', 'Font size', value=15, min=1, max=30)
@@ -14,11 +19,13 @@ app_ui = ui.page_sidebar(
     ui.layout_columns(
         ui.card(
             ui.card_header('Punnett Square'),
-            output_widget('plot')
+            output_widget('plot'),
+            full_screen=True,
         ),
         ui.card(
             ui.card_header('Frequency Table'),
-            ui.output_data_frame('frequencies')
+            ui.output_data_frame('frequencies'),
+            full_screen=True,
         ),
         col_widths=(8, 4)
     )
@@ -34,10 +41,12 @@ def server(input, output, session):
     @render_widget
     def plot():
         return square().plotly_square(width=input.plot_size(),
-                                      fontsize=input.font_size())
+                                      fontsize=input.font_size(),
+                                      type=input.type())
     
     @render.data_frame
     def frequencies():
-        return render.DataGrid(square().freq_table())
+        table = square().freq_table(type=input.type())
+        return render.DataGrid(table)
 
 app = App(app_ui, server)
