@@ -34,6 +34,7 @@ def map_phenotypes(phenotype):
     s = 0
     for i, j in zip(is_d[::2], range(1, len(is_d[::2]) + 1)):
         s = s + i * (2 ** (j - 1))
+    # quant = 2 ** (len(phenotype) // 2)
     return s
 
 map_phenotypes_vec = np.vectorize(map_phenotypes)

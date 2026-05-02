@@ -5,12 +5,15 @@ from shinywidgets import output_widget, render_widget
 app_ui = ui.page_sidebar(
     ui.sidebar(
         'Parental Genotypes',
-        ui.input_text('parent_a', 'First parent', value='Aa'),
-        ui.input_text('parent_b', 'Second parent', value='Aa'),
+        ui.input_text('parent_a', 'First parent', value='AaBb'),
+        ui.input_text('parent_b', 'Second parent', value='AaBb'),
         ui.input_radio_buttons(
             'type',
             '',
-            {'genotypes': 'Genotypes', 'phenotypes': 'Phenotypes'}
+            {
+                'genotypes': 'Genotypes', 
+                'phenotypes': 'Phenotypes'
+            }
         ),
         ui.input_slider('plot_size', 'Plot size', value=400, min=100, max=1000, 
                         step=10),

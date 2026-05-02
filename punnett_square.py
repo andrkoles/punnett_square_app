@@ -3,8 +3,7 @@ from itertools import product
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
-from utils import (sort_genotype, sort_genotype_vec, map_genotypes_vec,
-                   map_phenotypes_vec)
+from utils import (sort_genotype, sort_genotype_vec, map_phenotypes_vec)
 
 class PunnettSquare:
     def __init__(self, parent_a='Aa', parent_b='Aa'):
@@ -58,15 +57,17 @@ class PunnettSquare:
         """
         Encodes either the genotypes or the phenotypes in self.genotypes() array.
         """
+
         table = {
-            'genotypes': lambda: map_genotypes_vec(self.genotypes()),
+            'genotypes': lambda: (np.unique(self.genotypes(),
+                                             return_inverse=True)[1]),
             'phenotypes': lambda: map_phenotypes_vec(self.genotypes())
         }
         return table[type]()
     
     def freq_table(self, type='genotypes'):
         """
-        Frequency table for the genotypes in the cross.
+        Frequency table for the genotypes or the phenotypes in the cross.
         """
         key = {
             'genotypes': 'Genotype',
@@ -89,7 +90,6 @@ class PunnettSquare:
             .sort_values(by=[key[type]], ascending=True)
             .sort_values(by='Frequency',ascending=False)
         )
-
         return freqs
     
     def plot_square(self):
