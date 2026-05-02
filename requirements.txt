@@ -6,4 +6,3 @@ pandas==2.3.3
 plotly==6.5.2
 shiny==1.6.0
 shinywidgets==0.7.1
-sympy==1.14.0
